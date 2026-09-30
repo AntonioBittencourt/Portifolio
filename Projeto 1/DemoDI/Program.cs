@@ -158,7 +158,9 @@ namespace DemoDI
             collection.AddTransient<TituloRendaFixa>();
             collection.AddTransient<FundoInvestimento>();
             collection.AddTransient<ICarteiraInvestimentos, CarteiraInvestimentos>();
-            collection.AddTransient(typeof(Portfolio<>));
+            collection.AddTransient<RelatorioPortfolioService>();
+            collection.AddScoped(typeof(Portfolio<>));
+           // collection.AddTransient(typeof(Portfolio<>));
 
             var provider = collection.BuildServiceProvider();
 
@@ -201,6 +203,7 @@ namespace DemoDI
 
 
             //var carteira = provider.GetRequiredService<ICarteiraInvestimentos>();
+
 
             var portfolio = provider.GetRequiredService<Portfolio<IAtivoFinanceiro>>();
 
@@ -268,6 +271,10 @@ namespace DemoDI
             {
                 Console.WriteLine($" - {a.Nome}: {a.CalcularRentabilidade():N2}%");
             }
+
+
+            var relatorioService = provider.GetRequiredService<RelatorioPortfolioService>();
+            relatorioService.GerarRelatorioAtivos();
 
 
 

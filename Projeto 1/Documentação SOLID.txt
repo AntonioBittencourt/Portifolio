@@ -1,0 +1,60 @@
+O código deve demonstrar conscientemente a aplicação dos seguintes princípios:
+
+Princípio	Como aplicar no desafio
+S – Single Responsibility Principle	Cada classe de ativo e o Portfolio devem possuir uma responsabilidade clara
+O – Open/Closed Principle	Deve ser possível adicionar um novo tipo de ativo sem modificar o Portfolio nem o gerador de relatório
+L – Liskov Substitution Principle	Qualquer implementação de IAtivoFinanceiro deve poder ser utilizada no Portfolio sem quebrar o comportamento
+I – Interface Segregation Principle	As classes implementam apenas as interfaces que realmente fazem sentido
+D – Dependency Inversion Principle	Portfolio e o gerador de relatório dependem de abstrações, e não de classes concretas
+
+
+
+Comentários:
+S — Single Responsibility Principle (Princípio da Responsabilidade Única)
+Cada classe possui uma única razão para mudar:
+
+Acao, TituloRendaFixa e FundoInvestimento cuidam unicamente das regras de negócio e fórmulas específicas de cada ativo.
+
+Portfolio<T> gerencia apenas a coleção, o cálculo dos totais da carteira e a filtragem.
+
+RelatorioPortfolioService tem a responsabilidade exclusiva de formatar e exibir os dados via Reflection.
+
+ConsoleLogService lida estritamente com a formatação e escrita dos logs.
+
+
+O — Open/Closed Principle (Princípio Aberto/Fechado)
+
+
+Ao criar uma classe Criptoativo(desafio) ou qualquer outra : IAtivoFinanceiro, IAtivoNegociavel, não será preciso alterar nenhuma da classe Portfolio<T> nem do RelatorioPortfolioService.
+o switch no relatório avalia apenas o tipo primitivo para formatação visual (ex: DateTime, decimal), e não a classe concreta do ativo(o que foi proibido pelo enunciado). Isso também garante o princípio O.
+
+
+L — Liskov Substitution Principle (Princípio da Substituição de Liskov)
+
+Qualquer classe concreta (Acao, TituloRendaFixa, FundoInvestimento) pode substituir a interface IAtivoFinanceiro no Portfolio<IAtivoFinanceiro> sem quebrar o comportamento do sistema ou gerar exceções inesperadas.
+OBS: Avisos de string.IsNullOrEmpty ou alinhamento de nomes não ferem o LSP, pois são apenas boas práticas de validação defensiva do C# (o que devo corrigir mais tarde)
+
+
+I — Interface Segregation Principle (Princípio da Segregação de Interfaces)
+
+Em vez de ter uma interface com todas as propriedades possíveis (DataVencimento, Periodicidade, PrecoMercado), foram segregados os contratos em papéis específicos:
+
+IAtivoFinanceiro (Contrato base essencial).
+
+IAtivoComVencimento (Apenas para renda fixa / títulos).
+
+IGeradorDeRenda (Para ativos com proventos/dividendos).
+
+IAtivoNegociavel (Para ativos de renda variável negociados em bolsa).
+
+Nenhum ativo é forçado a implementar métodos ou propriedades que não utiliza (ex: uma Acao não precisa implementar DataVencimento).
+
+
+D — Dependency Inversion Principle (Princípio da Inversão de Dependência)
+Os módulos de alto nível não dependem de módulos de baixo nível; ambos dependem de abstrações:
+
+O Portfolio<T> depende da abstração IAtivoFinanceiro (graças à restrição where T : IAtivoFinanceiro) e da interface ILogService.
+
+O RelatorioPortfolioService depende de Portfolio<IAtivoFinanceiro> e ILogService.
+
+No Program.cs, todas as dependências são injetadas via Container de Injeção de Dependência (IServiceCollection), mantendo as classes totalmente desacopladas.

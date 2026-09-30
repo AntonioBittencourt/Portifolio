@@ -158,6 +158,7 @@ namespace DemoDI
             collection.AddTransient<TituloRendaFixa>();
             collection.AddTransient<FundoInvestimento>();
             collection.AddTransient<ICarteiraInvestimentos, CarteiraInvestimentos>();
+            collection.AddTransient(typeof(Portfolio<>));
 
             var provider = collection.BuildServiceProvider();
 
@@ -199,9 +200,9 @@ namespace DemoDI
             Console.WriteLine("\n=================== Portifolio de Investimentos ===================");
 
 
-            var carteira = provider.GetRequiredService<ICarteiraInvestimentos>();
+            //var carteira = provider.GetRequiredService<ICarteiraInvestimentos>();
 
-
+            var portfolio = provider.GetRequiredService<Portfolio<IAtivoFinanceiro>>();
 
             // Criando as instâncias resolvidas pelo DI
             var acao = provider.GetRequiredService<Acao>();
@@ -228,30 +229,44 @@ namespace DemoDI
             // Lista polimórfica usando a interface comum IAtivoFinanceiro
             //var carteira = new List<IAtivoFinanceiro> { acao, titulo, fundo };
 
-
+            /*
             carteira.AdicionarAtivo(acao);
             carteira.AdicionarAtivo(titulo);
             carteira.AdicionarAtivo(fundo);
+            */
 
+            // Adicionando os ativos no portifolio
+            portfolio.AdicionarAtivo(acao);
+            portfolio.AdicionarAtivo(titulo);
+            portfolio.AdicionarAtivo(fundo);
 
-
+            
             Console.WriteLine("\n---------------------------------------------------------");
-            Console.WriteLine($"\nValor Total: R$ {carteira.ValorTotalPortfolio():N2}");
+            Console.WriteLine($"\nValor Total: R$ {portfolio.ValorTotalPortfolio():N2}");
             // Console.WriteLine($"\nValor Total da Carteira: R$ {carteira.PesoDoAtivo():N2}");
-            Console.WriteLine($"Rentabilidade Média Ponderada: {carteira.RentabilidadeMediaPonderada():N2}%");
+            Console.WriteLine($"Rentabilidade Média Ponderada: {portfolio.RentabilidadeMediaPonderada():N2}%");
             Console.WriteLine("---------------------------------------------------------");
 
 
 
 
 
-            foreach (var ativo in carteira.Ativos)
+            foreach (var ativo in portfolio.Ativos)
             {
                 Console.WriteLine($"\nAtivo: {ativo.Nome}");
                 Console.WriteLine($"  Valor Investido: R$ {ativo.ValorInvestido:N2}");
                 Console.WriteLine($"  Valor Atual: R$ {ativo.ValorAtual:N2}");
                 Console.WriteLine($"  Rentabilidade: {ativo.CalcularRentabilidade():N2}%");
 
+            }
+
+
+            // Exemplo de uso do método FiltrarPor (Ex: Ativos com rentabilidade positiva > 10%)
+            Console.WriteLine("\n--- Ativos com Rentabilidade Maior que 10% ---");
+            var ativosRentaveis = portfolio.FiltrarPor(a => a.CalcularRentabilidade() > 10.0m);
+            foreach (var a in ativosRentaveis)
+            {
+                Console.WriteLine($" - {a.Nome}: {a.CalcularRentabilidade():N2}%");
             }
 
 
